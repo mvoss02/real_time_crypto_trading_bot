@@ -24,7 +24,7 @@ def main(
     Returns:
         None
     """
-    logger.info("Start the trades service")
+    logger.info('Start the trades service')
 
     # Init the Quix Streams app.
     # This class handles all the low-level details to connect to Kafka.
@@ -33,7 +33,7 @@ def main(
     )
 
     # Define a topic with JSON serialization
-    topic = app.topic(name=kafka_topic, value_serializer="json")
+    topic = app.topic(name=kafka_topic, value_serializer='json')
 
     with app.get_producer() as producer:
         while True:
@@ -49,10 +49,10 @@ def main(
                 # Push the seralized message to the topic
                 producer.produce(topic=topic.name, value=message.value, key=message.key)
 
-                logger.info(f"Pushed trade to Kafka: {trade}")
+                logger.info(f'Pushed trade to Kafka: {trade}')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     from config import config
 
     # Get the mock data
