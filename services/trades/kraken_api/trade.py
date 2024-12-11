@@ -11,7 +11,7 @@ class Trade(BaseModel):
     pair: str
     price: float
     volume: float
-    timestamp: datetime
+    timestamp: str
     timestamp_ms: int
 
     @classmethod

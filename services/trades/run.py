@@ -43,7 +43,7 @@ def main(
                 # Seralize the trade as bytes
                 message = topic.serialize(
                     key=trade.pair,
-                    value=trade.to_str(),
+                    value=trade.to_dict(),
                 )
 
                 # Push the seralized message to the topic
