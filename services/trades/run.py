@@ -1,9 +1,9 @@
 from typing import Union
-from loguru import logger
-from quixstreams import Application
 
 from kraken_api.mock_data import KrakenMockAPI
 from kraken_api.websocket import KrakenWebsocketAPI
+from loguru import logger
+from quixstreams import Application
 
 
 def main(
