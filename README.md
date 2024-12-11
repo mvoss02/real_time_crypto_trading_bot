@@ -3,4 +3,5 @@
 This repo will contain the full process of developing a crypto trading bot, including data engineering tools, data science, MLOps, etc.
 
 Todos: 
-- Add access to the Kraken Trades API
+- Dockerize the trades api
+- Add the candles logic
