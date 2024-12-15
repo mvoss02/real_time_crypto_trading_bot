@@ -3,5 +3,5 @@
 This repo will contain the full process of developing a crypto trading bot, including data engineering tools, data science, MLOps, etc.
 
 Todos: 
-- Finalising the backfill process
-- Add the news ingestion
+- Delete unnecessary groups added by backfill
+- Retrieve news from API
