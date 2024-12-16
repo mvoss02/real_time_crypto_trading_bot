@@ -12,6 +12,6 @@ lint.ignore = [
     "E501",  # line-too-long
 ]
 
-[tool.ruff.format]
+[format]
 indent-style = "space"
 quote-style = "single"
