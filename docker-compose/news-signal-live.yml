@@ -1,4 +1,4 @@
-ersion: '3.7'
+version: '3.7'
 name: news-signal-pipeline
 networks:
   redpanda_network:
