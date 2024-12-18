@@ -10,11 +10,13 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
     def __init__(
         self,
         model_name: str,
+        base_url: str,
         temperature: Optional[float] = 0,
     ):
         self.llm = Ollama(
             model=model_name,
             temperature=temperature,
+            base_url=base_url,
         )
 
         self.prompt_template = PromptTemplate(
@@ -70,8 +72,8 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
             if news_signal.signal != 0
         ]
 
-        if output_format == 'dict':
-            return response.to_dict()
+        if output_format == 'list':
+            return response.model_dump()['news_signals']
         else:
             return response
 

@@ -12,6 +12,7 @@ class Config(BaseSettings):
     kafka_consumer_group: str
 
     model_provider: Literal['anthropic', 'ollama']
+    data_source: Literal['live', 'historical']
 
 
 config = Config()

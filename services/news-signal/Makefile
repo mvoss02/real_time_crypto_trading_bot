@@ -1,11 +1,10 @@
-run-dev:
+run-dev-live:
+	cp live.settings.env settings.env
 	uv run python -m run
 
-run-claude:
-	uv run python -m llms.claude
-
-run-ollama:
-	uv run python -m llms.ollama
+run-dev-historical:
+	cp historical.settings.env settings.env
+	uv run python -m run
 
 build:
 	docker build -f Dockerfile -t news-signal .
@@ -26,8 +25,16 @@ run-with-ollama: build
 		--env-file ollama.env \
 		news-signal
 
-# To generate a golden dataset with (instruction, input, output) tuples to do
-# Supervised Fine Tuning.
+# LLM specific things
+# Sanity checking each of the LLMs
+run-claude:
+	uv run python -m llms.claude
+
+run-ollama:
+	uv run python -m llms.ollama
+
+# Generation of an instruction dataset with tuples (instruction, input, output)
+# to do Supervised Fine Tuning
 instruction-dataset-with-claude:
 	uv run python golden_dataset.py \
 		--model_provider anthropic \
@@ -42,14 +49,17 @@ instruction-dataset-with-ollama:
 		--input_file ./data/cryptopanic_news.csv \
 		--output_file ./data/instruction_dataset_ollama_10k.jsonl
 
+# To install the dependencies for the GPU instance
 venv-gpu-instance:
 	curl -LsSf https://astral.sh/uv/install.sh | sh && \
 	source $HOME/.local/bin/env && \
 	uv sync --group gpu-instance
 
+# To login to Comet ML during fine-tuning
 login-comet:
 	uv run comet login
 
+# To fine-tune the model
 fine-tune:
 	uv run python fine_tuning.py \
 		--base_llm_name unsloth/Llama-3.2-1B-bnb-4bit \

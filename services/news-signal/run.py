@@ -1,6 +1,24 @@
+from typing import List
+
 from llms.base import BaseNewsSignalExtractor
 from loguru import logger
 from quixstreams import Application
+
+
+def add_signal_to_news(value: dict) -> dict:
+    news_signal: List[dict] = llm.get_signal(value['title'], output_format='list')
+    model_name = llm.model_name
+    timestamp_ms = value['timestamp_ms']
+
+    return [
+        {
+            'coin': n['coin'],
+            'signal': n['signal'],
+            'model_name': model_name,
+            'timestamp_ms': timestamp_ms,
+        }
+        for n in news_signal
+    ]
 
 
 def main(
@@ -11,6 +29,13 @@ def main(
     llm: BaseNewsSignalExtractor,
 ):
     logger.info('Hello from news-signal!')
+
+    # create a unique id from current milliseconds
+    # TODO: remove this once we are done debuggin
+    import time
+
+    unique_id = str(int(time.time() * 1000))
+    kafka_consumer_group = f'{kafka_consumer_group}-{unique_id}'
 
     app = Application(
         broker_address=kafka_broker_address,
@@ -30,17 +55,10 @@ def main(
 
     sdf = app.dataframe(input_topic)
 
-    # Process the incoming news into a news signal
-    sdf = sdf.apply(
-        lambda value: {
-            'news': value['title'],
-            **llm.get_signal(value['title']),
-            'model_name': llm.model_name,
-            'timestamp_ms': value['timestamp_ms'],
-        }
-    )
+    sdf = sdf.apply(add_signal_to_news, expand=True)
 
     sdf = sdf.update(lambda value: logger.debug(f'Final message: {value}'))
+    # sdf = sdf.update(lambda value: breakpoint())
 
     sdf = sdf.to_topic(output_topic)
 
