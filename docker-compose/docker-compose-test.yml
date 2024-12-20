@@ -1,0 +1,48 @@
+name: news-signal-test
+
+networks:
+  redpanda_network:
+    external: true
+    name: redpanda_network
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    entrypoint: ["/bin/sh", "/run_ollama.sh"]
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./run_ollama.sh:/run_ollama.sh  # Mount the script into the container root      
+      #- ./model_files:/model_files  # Mount the directory with the trained model
+    tty: true
+    networks:
+      - redpanda_network
+
+  news-signal:
+    build:
+      context: ../services/news-signal
+      dockerfile: Dockerfile
+    networks:
+      - redpanda_network
+    environment:
+      - KAFKA_BROKER_ADDRESS=redpanda:9092
+      - KAFKA_INPUT_TOPIC=news_historical
+      - KAFKA_OUTPUT_TOPIC=news_signal_historical_${RUN_ID}
+      - KAFKA_CONSUMER_GROUP=news_signal_historical_${RUN_ID}
+      - MODEL_PROVIDER=ollama
+      - DATA_SOURCE=historical
+      - OLLAMA_BASE_URL=http://ollama:11434
+    depends_on:
+      - ollama
+
+volumes:
+  ollama_data:

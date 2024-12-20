@@ -2,3 +2,4 @@
 **/cryptopanic_credentials.env
 **/anthropic_credentials.env
 **/*.jsonl
+**/*.csv
