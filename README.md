@@ -4,7 +4,6 @@ This repository contains the code for a Real-Time Crypto Currency Price Predicto
 
 
 ## Overview
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 The main data scources are:
 
@@ -15,7 +14,6 @@ The main data scources are:
     2.2. Historical data from the REST API
 
 ## Prerequisites
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 - uv 
 - Docker and Docker Compose
 - Kafka broker
