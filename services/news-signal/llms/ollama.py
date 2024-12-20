@@ -14,7 +14,7 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
         temperature: Optional[float] = 0,
     ):
         self.llm = Ollama(
-            request_timeout=60.0,
+            request_timeout=600.0,
             model=model_name,
             temperature=temperature,
             base_url=base_url,
