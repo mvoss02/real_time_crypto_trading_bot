@@ -8,10 +8,10 @@ This repository contains the code for a Real-Time Crypto Currency Price Predicto
 The main data scources are:
 
 1. https://cryptopanic.com/ - where we retrieve live news within the crypto space
-1.1. Historic data has been retrieved from https://github.com/soheilrahsaz/cryptoNewsDataset, as there is no API to obtain histoirc news headlines from cryptopanic
+   1. Historic data has been retrieved from https://github.com/soheilrahsaz/cryptoNewsDataset, as there is no API to obtain historic news headlines from cryptopanic
 2. https://docs.kraken.com/api/
-2.1. Live data is being retrieved from the Websocket API
-2.2. Historical data from the REST API
+   1. Live data is being retrieved from the Websocket API
+   2. Historical data from the REST API
 
 ## Prerequisites
 - uv 
