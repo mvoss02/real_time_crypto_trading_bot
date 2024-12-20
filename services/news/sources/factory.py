@@ -8,7 +8,7 @@ NewsDataSource = Union[LiveNewsDataSource, HistoricalNewsDataSource]
 
 def get_source(
     data_source: Literal['live', 'historical'],
-    polling_interval_sec: Optional[int] = 10,
+    polling_interval_sec: Optional[int] = 1,
     url_rar_file: Optional[str] = None,
     path_to_csv_file: Optional[str] = None,
 ) -> NewsDataSource:

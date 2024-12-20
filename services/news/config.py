@@ -13,7 +13,7 @@ class Config(BaseSettings):
     kafka_topic: str
     data_source: Literal['live', 'historical']
 
-    polling_interval_sec: Optional[int] = 10
+    polling_interval_sec: Optional[int] = 5
     historical_data_source_url_rar_file: Optional[str] = None
     historical_data_source_csv_file: Optional[str] = None
 

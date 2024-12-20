@@ -6,9 +6,13 @@ from quixstreams import Application
 
 
 def add_signal_to_news(value: dict) -> dict:
+    logger.debug(f'Value passed, to be converted to news signal: {value}')
+
     news_signal: List[dict] = llm.get_signal(value['title'], output_format='list')
     model_name = llm.model_name
     timestamp_ms = value['timestamp_ms']
+
+    logger.debug(f'News Signal: {news_signal}')
 
     return [
         {

@@ -14,6 +14,7 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
         temperature: Optional[float] = 0,
     ):
         self.llm = Ollama(
+            request_timeout=60.0,
             model=model_name,
             temperature=temperature,
             base_url=base_url,
@@ -59,6 +60,9 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
         Returns:
             The news signal
         """
+
+        # breakpoint()
+
         response: NewsSignal = self.llm.structured_predict(
             NewsSignal,
             prompt=self.prompt_template,
@@ -85,6 +89,7 @@ if __name__ == '__main__':
 
     llm = OllamaNewsSignalExtractor(
         model_name=config.model_name,
+        base_url=config.ollama_base_url,
     )
 
     examples = [

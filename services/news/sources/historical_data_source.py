@@ -1,6 +1,7 @@
 from typing import Optional
 
 import pandas as pd
+from loguru import logger
 from quixstreams.sources.base import Source
 
 from .news import News
@@ -44,6 +45,7 @@ class HistoricalNewsDataSource(Source):
         raise NotImplementedError('Not implemented')
 
     def run(self):
+        logger.info('Pushing historical news to a Kafka topic...')
         while self.running:
             # load the CSV file into a pandas dataframe
             df = pd.read_csv(self.path_to_csv_file)
@@ -68,6 +70,9 @@ class HistoricalNewsDataSource(Source):
                     value=news.to_dict(),
                 )
 
+                # Check what is being pushed to the internal Kafka topic (historical)
+                # logger.info(f'Historical message: {msg.key} {msg.value}')
+
                 # push message to internal Kafka topic that acts like a bridge
                 # between my source and the Quix Streams Applicaton object that
                 # uses this source to ingest data
@@ -77,6 +82,7 @@ class HistoricalNewsDataSource(Source):
                     key=msg.key,
                     value=msg.value,
                 )
+        logger.info('Finished pushing historical news to a Kafka topic.')
 
 
 if __name__ == '__main__':

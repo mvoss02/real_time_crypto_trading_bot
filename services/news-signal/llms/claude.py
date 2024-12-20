@@ -2,8 +2,9 @@ from typing import Literal, Optional
 
 from llama_index.core.prompts import PromptTemplate
 from llama_index.llms.anthropic import Anthropic
+from loguru import logger
 
-from .base import BaseNewsSignalExtractor, NewsSignal
+from .base import BaseNewsSignalExtractor, NewsSignal, NewsSignalOneCoin
 
 
 class ClaudeNewsSignalExtractor(BaseNewsSignalExtractor):
@@ -48,12 +49,31 @@ class ClaudeNewsSignalExtractor(BaseNewsSignalExtractor):
         self,
         text: str,
         output_format: Literal['dict', 'NewsSignal'] = 'NewsSignal',
-    ) -> NewsSignal | dict:
-        response: NewsSignal = self.llm.structured_predict(
-            NewsSignal,
-            prompt=self.prompt_template,
-            news_story=text,
-        )
+    ) -> dict | NewsSignal:
+        """
+        Get the news signal from the given `text`
+
+        Args:
+            text: The news article to get the signal from
+            output_format: The format of the output
+
+        Returns:
+            The news signal
+        """
+
+        # breakpoint()
+
+        try:
+            response: NewsSignal = self.llm.structured_predict(
+                NewsSignal,
+                prompt=self.prompt_template,
+                news_story=text,
+            )
+        except ValueError as e:
+            logger.error(f'There has been a ValueError: {e}, for the text: {text}')
+            response = NewsSignal(
+                news_signals=[NewsSignalOneCoin(coin='BTC', signal=0)]
+            )
 
         # keep only news signals with non-zero signal
         response.news_signals = [
@@ -62,8 +82,8 @@ class ClaudeNewsSignalExtractor(BaseNewsSignalExtractor):
             if news_signal.signal != 0
         ]
 
-        if output_format == 'dict':
-            return response.to_dict()
+        if output_format == 'list':
+            return response.model_dump()['news_signals']
         else:
             return response
 
