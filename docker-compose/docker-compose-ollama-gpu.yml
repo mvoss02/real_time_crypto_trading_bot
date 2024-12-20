@@ -5,27 +5,35 @@ networks:
     external: true
     name: redpanda_network
 
+volumes:
+  ollama_data:
+
 services:
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
     ports:
       - "11434:11434"
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 5s
+      retries: 2
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./init-ollama.sh:/init-ollama.sh
+    entrypoint: ["/bin/sh", "/init-ollama.sh"]
+    networks:
+      - redpanda_network
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              count: all
+              count: 1
               capabilities: [gpu]
-    entrypoint: ["/bin/sh", "/run_ollama.sh"]
-    volumes:
-      - ollama_data:/root/.ollama
-      - ./run_ollama.sh:/run_ollama.sh  # Mount the script into the container root      
-      #- ./model_files:/model_files  # Mount the directory with the trained model
-    tty: true
-    networks:
-      - redpanda_network
 
   news-signal:
     build:
@@ -35,14 +43,8 @@ services:
       - redpanda_network
     environment:
       - KAFKA_BROKER_ADDRESS=redpanda:9092
-      - KAFKA_INPUT_TOPIC=news_historical
-      - KAFKA_OUTPUT_TOPIC=news_signal_historical_${RUN_ID}
-      - KAFKA_CONSUMER_GROUP=news_signal_historical_${RUN_ID}
       - MODEL_PROVIDER=ollama
-      - DATA_SOURCE=historical
       - OLLAMA_BASE_URL=http://ollama:11434
     depends_on:
       - ollama
-
-volumes:
-  ollama_data:
+    restart: always
