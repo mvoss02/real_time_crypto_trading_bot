@@ -17,7 +17,7 @@ services:
       - PAIRS=["BTC/USD", "BTC/EUR", "ETH/EUR", "ETH/USD", "SOL/USD", "SOL/EUR", "XRP/USD", "XRP/EUR"]
       - LAST_N_DAYS=30
       - DATA_SOURCE=historical
-    #restart: always
+    restart: on-failure
     
   candles:
     build:
@@ -33,8 +33,7 @@ services:
       - CANDLE_SECONDS=60
       - EMIT_INCOMPLETE_CANDLES=False
       - DATA_SOURCE=historical
-    restart: on-failure
-
+    restart: always
   technical-indicators:
     build:
       context: ../services/technical-indicators
@@ -49,8 +48,8 @@ services:
       - MAX_CANDLES_IN_STATE=120
       - CANDLE_SECONDS=60
       - DATA_SOURCE=historical
-    restart: on-failure
-
+    restart: always
+    
   to-feature-store:
     build:
       context: ../services/to-feature-store
@@ -68,4 +67,4 @@ services:
       - FEATURE_GROUP_PRIMARY_KEYS=["pair", "candle_seconds"]
       - FEATURE_GROUP_EVENT_TIME=timestamp_ms
       - DATA_SOURCE=historical
-    restart: on-failure
+    restart: always
