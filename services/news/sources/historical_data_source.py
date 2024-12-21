@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import Optional
 
 import pandas as pd
@@ -12,7 +13,14 @@ class HistoricalNewsDataSource(Source):
         self,
         url_rar_file: Optional[str] = None,
         path_to_csv_file: Optional[str] = None,
+        days_back: Optional[int] = 180,
     ):
+        """
+        Args:
+            url_rar_file (str): URL of the RAR file to download
+            path_to_csv_file (str): Path to the CSV file to read
+            days_back (int): Number of days to consider for the historical data
+        """
         super().__init__(name='news_historical_data_source')
         self.url_rar_file = url_rar_file
         self.path_to_csv_file = path_to_csv_file
@@ -27,6 +35,8 @@ class HistoricalNewsDataSource(Source):
                 raise ValueError(
                     'Either url_rar_file or path_to_csv_file must be provided'
                 )
+
+        self.from_date = datetime.now() - timedelta(days=days_back)
 
     def _download_and_extract_rar_file(self, url_rar_file: str) -> str:
         """
@@ -45,17 +55,22 @@ class HistoricalNewsDataSource(Source):
         raise NotImplementedError('Not implemented')
 
     def run(self):
-        logger.info('Pushing historical news to a Kafka topic...')
+        # load the CSV file into a pandas dataframe
+        df = pd.read_csv(self.path_to_csv_file, parse_dates=['newsDatetime'])
+        logger.debug(f'Loaded {len(df)} rows from {self.path_to_csv_file}')
+
+        # drop nan values
+        df = df.dropna()
+        logger.debug(f'{len(df)} rows after dropping nan values')
+
+        # filter the dataframe to only include the last n days
+        df = df[df['newsDatetime'] > self.from_date]
+        logger.debug(f'{len(df)} rows after filtering dates after {self.from_date}')
+
+        # convert the dataframe into a list of dictionaries
+        rows = df[['title', 'sourceId', 'newsDatetime']].to_dict(orient='records')
+
         while self.running:
-            # load the CSV file into a pandas dataframe
-            df = pd.read_csv(self.path_to_csv_file)
-
-            # drop nan values
-            df = df.dropna()
-
-            # convert the dataframe into a list of dictionaries
-            rows = df[['title', 'sourceId', 'newsDatetime']].to_dict(orient='records')
-
             for row in rows:
                 # transform raw data into News object
                 news = News.from_csv_row(
@@ -70,9 +85,6 @@ class HistoricalNewsDataSource(Source):
                     value=news.to_dict(),
                 )
 
-                # Check what is being pushed to the internal Kafka topic (historical)
-                # logger.info(f'Historical message: {msg.key} {msg.value}')
-
                 # push message to internal Kafka topic that acts like a bridge
                 # between my source and the Quix Streams Applicaton object that
                 # uses this source to ingest data
@@ -82,11 +94,14 @@ class HistoricalNewsDataSource(Source):
                     key=msg.key,
                     value=msg.value,
                 )
-        logger.info('Finished pushing historical news to a Kafka topic.')
+
+            logger.debug(f'Done processing {len(rows)} rows')
+            return
 
 
 if __name__ == '__main__':
     source = HistoricalNewsDataSource(
         path_to_csv_file='./data/cryptopanic_news.csv',
+        days_back=180,
     )
     source.run()
