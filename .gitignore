@@ -1,5 +1,7 @@
 **/hopsworks_credentials.env
 **/cryptopanic_credentials.env
 **/anthropic_credentials.env
+**/comet_ml_credentials.env
 **/*.jsonl
 **/*.csv
+**/*.joblib
