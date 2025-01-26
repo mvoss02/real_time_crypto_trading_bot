@@ -7,5 +7,5 @@ build:
 run: build
 	docker run -it \
 		--network redpanda_network \
-		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \tdddddd
+		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
 		candles

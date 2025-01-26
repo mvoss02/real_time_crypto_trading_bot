@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
+from pandas import Timestamp
 from pydantic import BaseModel
 
 
@@ -20,7 +21,7 @@ class News(BaseModel):
         cls,
         title: str,
         source_id: int,
-        news_datetime: str,
+        news_datetime: Timestamp,
     ) -> 'News':
         """
         This method is used to create a News object from a CSV row.
@@ -28,15 +29,12 @@ class News(BaseModel):
         The data we get from the CSV is in the following format:
         - title
         - sourceId
-        - newsDatetime: '6/9/2022 6:57'
+        - newsDatetime: pandas Timestamp
         """
-        # parse a datetime string with this format '6/9/2022 6:57' into a datetime object
-        # in UTC timezone
-        news_datetime = datetime.strptime(news_datetime, '%m/%d/%Y %H:%M')
-        news_datetime = news_datetime.replace(tzinfo=timezone.utc)
-
-        # convert the datetime object into a string in the format '2024-12-18T12:29:27Z'
-        published_at = news_datetime.isoformat()
+        # Convert pandas Timestamp to UTC and format as ISO string with Z
+        published_at = (
+            news_datetime.tz_localize('UTC').isoformat().replace('+00:00', 'Z')
+        )
 
         # convert the source_id into a string
         source = str(source_id)
